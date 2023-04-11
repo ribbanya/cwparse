@@ -175,7 +175,7 @@ mod tests {
     use nom_supreme::error::ErrorTree;
 
     #[test]
-    fn test_tree() {
+    fn tree() {
         use crate::{
             map::Line,
             tree::{Data, Identifier, Scope, Type},

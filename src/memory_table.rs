@@ -171,7 +171,7 @@ mod tests {
     use nom_supreme::error::ErrorTree;
 
     #[test]
-    fn test_memory_map() {
+    fn memory_map() {
         use crate::map::Line;
 
         let input = "\

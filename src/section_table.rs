@@ -177,7 +177,7 @@ mod tests {
     use nom_supreme::error::ErrorTree;
 
     #[test]
-    fn test_section_table() {
+    fn section_table() {
         use crate::map::Line;
 
         let input = "\

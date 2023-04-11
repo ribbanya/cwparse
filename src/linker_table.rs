@@ -12,8 +12,8 @@ use nom::{
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Entry<S> {
-    pub(crate) name: S,
-    pub(crate) virt_addr: u32,
+    pub name: S,
+    pub virt_addr: u32,
 }
 
 pub(crate) fn title<'a, E: ParseError<&'a str>>(
@@ -47,7 +47,7 @@ mod tests {
     use nom_supreme::error::ErrorTree;
 
     #[test]
-    fn test_linker_table() {
+    fn linker_table() {
         use crate::map::Line;
 
         let input = "\

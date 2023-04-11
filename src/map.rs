@@ -342,25 +342,11 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::Line;
-    use anyhow::{anyhow, Context, Result};
+    use crate::utils::test_utils::parse_lines;
+    use anyhow::{Context, Result};
     use memmap2::Mmap;
-    use nom_supreme::error::ErrorTree;
-    use rayon::{prelude::ParallelIterator, str::ParallelString};
     use std::{fs::File, path::PathBuf, str};
     use test_case::test_case;
-
-    fn parse_lines<'a>(input: &'a str) -> Result<Vec<Line<&'a str>>> {
-        let vec = input
-            .par_lines()
-            .map(|line| {
-                super::line::<ErrorTree<&'a str>>(line).map(|(_, line)| line)
-            })
-            .collect::<Result<Vec<Line<&'a str>>, _>>()
-            .map_err(|err| anyhow!(format!("{err:#?}")))?;
-
-        Ok(vec)
-    }
 
     #[test_case("GALE01.2.map" ; "melee")]
     #[test_case("GM8E01.0.map" ; "prime 1.0")]
@@ -372,7 +358,7 @@ mod tests {
     #[test_case("GMBE8P.map" ; "super monkey ball")]
     #[test_case("GPIE01.map" ; "pikmin")]
     #[test_case("GPVE01.map" ; "pikmin2")]
-    fn test_file(path: &str) -> Result<()> {
+    fn file(path: &str) -> Result<()> {
         let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("tests/data")
             .join(path);
@@ -381,7 +367,7 @@ mod tests {
             .context("Failed to create the memory map.")?;
         let input = str::from_utf8(mmap.as_ref())
             .context("Failed to convert to UTF-8.")?;
-        let _lines = parse_lines(input).context("Failed to parse lines.")?;
+        let _lines = parse_lines(input);
 
         Ok(())
     }
