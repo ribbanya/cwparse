@@ -33,7 +33,7 @@ pub enum Line<S: Eq + PartialEq> {
     LinkerEntry(linker_table::Entry<S>),
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub enum Identifier<S: Eq + PartialEq> {
     Relative {
         idx: u32,
@@ -57,7 +57,7 @@ pub enum Identifier<S: Eq + PartialEq> {
     },
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub enum SectionName<S> {
     Bss,
     Ctors,
