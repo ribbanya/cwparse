@@ -46,14 +46,14 @@ pub struct Specifier<S: Eq + PartialEq> {
     pub origin: Origin<S>,
 }
 
-pub(crate) fn title<'a, E>(input: &'a str) -> IResult<&'a str, &'a str, E>
+pub fn title<'a, E>(input: &'a str) -> IResult<&'a str, &'a str, E>
 where
     E: ParseError<&'a str>,
 {
     preceded(tag("Link map of "), c_name)(input)
 }
 
-pub(crate) fn node<'a, E>(input: &'a str) -> IResult<&'a str, Node<&'a str>, E>
+pub fn node<'a, E>(input: &'a str) -> IResult<&'a str, Node<&'a str>, E>
 where
     E: ParseError<&'a str> + FromExternalError<&'a str, ParseIntError>,
 {

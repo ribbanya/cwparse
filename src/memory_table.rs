@@ -31,16 +31,14 @@ pub struct Entry<S> {
     pub file_addr: u32,
 }
 
-pub(crate) fn title<'a, E>(input: &'a str) -> IResult<&'a str, &'a str, E>
+pub fn title<'a, E>(input: &'a str) -> IResult<&'a str, &'a str, E>
 where
     E: ParseError<&'a str>,
 {
     recognize(tag("Memory map:"))(input)
 }
 
-pub(crate) fn columns0<'a, E>(
-    input: &'a str,
-) -> IResult<&'a str, Line<&'a str>, E>
+pub fn columns0<'a, E>(input: &'a str) -> IResult<&'a str, Line<&'a str>, E>
 where
     E: ParseError<&'a str>,
 {
@@ -57,9 +55,7 @@ where
     )(input)
 }
 
-pub(crate) fn columns1<'a, E>(
-    input: &'a str,
-) -> IResult<&'a str, Line<&'a str>, E>
+pub fn columns1<'a, E>(input: &'a str) -> IResult<&'a str, Line<&'a str>, E>
 where
     E: ParseError<&'a str>,
 {
@@ -74,9 +70,7 @@ where
     )(input)
 }
 
-pub(crate) fn entry<'a, E>(
-    input: &'a str,
-) -> IResult<&'a str, Entry<&'a str>, E>
+pub fn entry<'a, E>(input: &'a str) -> IResult<&'a str, Entry<&'a str>, E>
 where
     E: ParseError<&'a str>
         + FromExternalError<&'a str, ParseIntError>
@@ -131,7 +125,7 @@ where
     )(input)
 }
 
-pub(crate) fn debug_entry<'a, E>(
+pub fn debug_entry<'a, E>(
     input: &'a str,
 ) -> IResult<&'a str, Entry<&'a str>, E>
 where

@@ -124,7 +124,7 @@ where
 }
 
 // TODO: Custom error type
-pub(crate) fn padded<'a, E>(
+pub fn padded<'a, E>(
     len: usize,
 ) -> impl FnMut(&'a str) -> IResult<&'a str, &'a str, E>
 where
@@ -144,7 +144,7 @@ where
     }
 }
 
-pub(crate) fn hex<'a, E>(
+pub fn hex<'a, E>(
     count: usize,
 ) -> impl FnMut(&'a str) -> IResult<&'a str, u32, E>
 where
@@ -157,7 +157,7 @@ where
     move |input: &'a str| parser(input)
 }
 
-pub(crate) fn c_name<'a, E>(input: &'a str) -> IResult<&'a str, &'a str, E>
+pub fn c_name<'a, E>(input: &'a str) -> IResult<&'a str, &'a str, E>
 where
     E: ParseError<&'a str>,
 {
@@ -167,7 +167,7 @@ where
     ))(input)
 }
 
-pub(crate) fn cpp_name<'a, E>(input: &'a str) -> IResult<&'a str, &'a str, E>
+pub fn cpp_name<'a, E>(input: &'a str) -> IResult<&'a str, &'a str, E>
 where
     E: ParseError<&'a str>,
 {
@@ -208,7 +208,7 @@ where
     map_res(preceded(char('$'), digit1), str::parse::<u32>)(input)
 }
 
-pub(crate) fn identifier<'a, E>(
+pub fn identifier<'a, E>(
     input: &'a str,
 ) -> IResult<&'a str, Identifier<&'a str>, E>
 where
@@ -237,7 +237,7 @@ where
     .parse(input)
 }
 
-pub(crate) fn section_name<'a, E>(
+pub fn section_name<'a, E>(
     input: &'a str,
 ) -> IResult<&'a str, SectionName<&'a str>, E>
 where
@@ -277,9 +277,7 @@ where
     ))(input)
 }
 
-pub(crate) fn origin<'a, E>(
-    input: &'a str,
-) -> IResult<&'a str, Origin<&'a str>, E>
+pub fn origin<'a, E>(input: &'a str) -> IResult<&'a str, Origin<&'a str>, E>
 where
     E: ParseError<&'a str>,
 {

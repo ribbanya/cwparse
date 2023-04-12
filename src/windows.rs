@@ -4,7 +4,7 @@ use nom::{
     IResult,
 };
 
-pub(crate) fn is_filename(c: char) -> bool {
+pub fn is_filename(c: char) -> bool {
     match c {
         '\x00'..='\x1F' // Control characters
         | '<'
@@ -20,7 +20,7 @@ pub(crate) fn is_filename(c: char) -> bool {
     }
 }
 
-pub(crate) fn filename<'a, E>(input: &'a str) -> IResult<&'a str, &'a str, E>
+pub fn filename<'a, E>(input: &'a str) -> IResult<&'a str, &'a str, E>
 where
     E: ParseError<&'a str>,
 {

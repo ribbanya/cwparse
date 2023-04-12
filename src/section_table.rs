@@ -29,7 +29,7 @@ pub struct Symbol<S: Eq + PartialEq> {
     pub origin: Origin<S>,
 }
 
-pub(crate) fn title<'a, E>(
+pub fn title<'a, E>(
     input: &'a str,
 ) -> IResult<&'a str, SectionName<&'a str>, E>
 where
@@ -38,9 +38,7 @@ where
     terminated(section_name, tag(" section layout"))(input)
 }
 
-pub(crate) fn columns0<'a, E>(
-    input: &'a str,
-) -> IResult<&'a str, Line<&'a str>, E>
+pub fn columns0<'a, E>(input: &'a str) -> IResult<&'a str, Line<&'a str>, E>
 where
     E: ParseError<&'a str>,
 {
@@ -55,9 +53,7 @@ where
     )(input)
 }
 
-pub(crate) fn columns1<'a, E>(
-    input: &'a str,
-) -> IResult<&'a str, Line<&'a str>, E>
+pub fn columns1<'a, E>(input: &'a str) -> IResult<&'a str, Line<&'a str>, E>
 where
     E: ParseError<&'a str>,
 {
@@ -74,9 +70,7 @@ where
     )(input)
 }
 
-pub(crate) fn separator<'a, E>(
-    input: &'a str,
-) -> IResult<&'a str, Line<&'a str>, E>
+pub fn separator<'a, E>(input: &'a str) -> IResult<&'a str, Line<&'a str>, E>
 where
     E: ParseError<&'a str>,
 {
@@ -85,9 +79,7 @@ where
     })(input)
 }
 
-pub(crate) fn symbol<'a, E>(
-    input: &'a str,
-) -> IResult<&'a str, Symbol<&'a str>, E>
+pub fn symbol<'a, E>(input: &'a str) -> IResult<&'a str, Symbol<&'a str>, E>
 where
     E: ParseError<&'a str>
         + FromExternalError<&'a str, ParseIntError>

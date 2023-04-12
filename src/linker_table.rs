@@ -12,19 +12,17 @@ use nom::{
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Entry<S> {
-    pub(crate) name: S,
-    pub(crate) virt_addr: u32,
+    pub name: S,
+    pub virt_addr: u32,
 }
 
-pub(crate) fn title<'a, E: ParseError<&'a str>>(
+pub fn title<'a, E: ParseError<&'a str>>(
     input: &'a str,
 ) -> IResult<&'a str, Line<&'a str>, E> {
     map(tag("Linker generated symbols:"), |_| Line::LinkerTitle)(input)
 }
 
-pub(crate) fn entry<'a, E>(
-    input: &'a str,
-) -> IResult<&'a str, Entry<&'a str>, E>
+pub fn entry<'a, E>(input: &'a str) -> IResult<&'a str, Entry<&'a str>, E>
 where
     E: ParseError<&'a str>
         + FromExternalError<&'a str, ParseIntError>
