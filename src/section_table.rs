@@ -6,7 +6,7 @@ use nom::{
     branch::alt,
     bytes::complete::tag,
     character::complete::{char, digit1},
-    combinator::{map, map_res},
+    combinator::{map, map_res, opt},
     error::{FromExternalError, ParseError},
     multi::count,
     sequence::{delimited, pair, terminated, tuple},
@@ -21,9 +21,15 @@ pub enum Data<S: Eq + PartialEq> {
 }
 
 #[derive(Debug, Eq, PartialEq)]
+pub struct Addrs {
+    section: u32,
+    virual: u32,
+    file: Option<u32>,
+}
+
+#[derive(Debug, Eq, PartialEq)]
 pub struct Symbol<S: Eq + PartialEq> {
-    pub addr: u32,
-    pub virt_addr: u32,
+    pub addrs: Option<Addrs>,
     pub data: Data<S>,
     pub id: Identifier<S>,
     pub origin: Origin<S>,
@@ -88,12 +94,13 @@ where
     map(
         tuple((
             delimited(count(char(' '), 2), hex(8), char(' ')),
-            terminated(alt((parent, child)), tag("\x20\t")),
+            terminated(alt((parent, child)), alt((tag("\x20\t"), tag("\t")))),
             origin,
         )),
-        |(addr, (virt_addr, data, id), origin)| Symbol {
+        |(addr, (virt_addr, file_addr, data, id), origin)| Symbol {
             addr,
             virt_addr,
+            file_addr,
             data,
             id,
             origin,
@@ -109,9 +116,9 @@ where
     map_res(padded(2).and_then(digit1), |n| u8::from_str_radix(n, 10))(input)
 }
 
-fn child<'a, E>(
+fn unused<'a, E>(
     input: &'a str,
-) -> IResult<&'a str, (u32, Data<&'a str>, Identifier<&'a str>), E>
+) -> IResult<&'a str, (Option<u32>, Data<&'a str>, Identifier<&'a str>), E>
 where
     E: ParseError<&'a str> + FromExternalError<&'a str, ParseIntError>,
 {
@@ -119,10 +126,33 @@ where
         tuple((
             terminated(count(char('0'), 6), char(' ')),
             terminated(hex(8), char(' ')),
+            opt(terminated(hex(8), char(' '))),
             terminated(identifier, char(' ')),
             parent_identifier,
         )),
-        |(_, virt_addr, id, parent)| (virt_addr, Data::Child { parent }, id),
+        |(_, virt_addr, file_addr, id, parent)| {
+            (virt_addr, file_addr, Data::Child { parent }, id)
+        },
+    )(input)
+}
+
+fn child<'a, E>(
+    input: &'a str,
+) -> IResult<&'a str, (u32, Option<u32>, Data<&'a str>, Identifier<&'a str>), E>
+where
+    E: ParseError<&'a str> + FromExternalError<&'a str, ParseIntError>,
+{
+    map(
+        tuple((
+            terminated(count(char('0'), 6), char(' ')),
+            terminated(hex(8), char(' ')),
+            opt(terminated(hex(8), char(' '))),
+            terminated(identifier, char(' ')),
+            parent_identifier,
+        )),
+        |(_, virt_addr, file_addr, id, parent)| {
+            (virt_addr, file_addr, Data::Child { parent }, id)
+        },
     )(input)
 }
 
@@ -137,7 +167,7 @@ where
 
 fn parent<'a, E>(
     input: &'a str,
-) -> IResult<&'a str, (u32, Data<&'a str>, Identifier<&'a str>), E>
+) -> IResult<&'a str, (u32, Option<u32>, Data<&'a str>, Identifier<&'a str>), E>
 where
     E: ParseError<&'a str> + FromExternalError<&'a str, ParseIntError>,
     E: ParseError<&'a str> + FromExternalError<&'a str, &'static str>,
@@ -146,11 +176,12 @@ where
         tuple((
             terminated(hex(6), char(' ')),
             terminated(hex(8), char(' ')),
+            opt(terminated(hex(8), char(' '))),
             terminated(align, char(' ')),
             identifier,
         )),
-        |(size, virt_addr, align, id)| {
-            (virt_addr, Data::Parent { size, align }, id)
+        |(size, virt_addr, file_addr, align, id)| {
+            (virt_addr, file_addr, Data::Parent { size, align }, id)
         },
     )(input)
 }
@@ -180,8 +211,8 @@ mod tests {
 \x20 00000000 0001cc 80003100  1 .init\x20\t__start.o \r\n\
 \x20 00000000 0000f0 80003100  4 __start\x20\t__start.o \r\n\
 \x20 00000250 000000 80003350 __fill_mem (entry of memset) \t__mem.o \r\n\
-\x20 00031b94 00009c 800ec754 000e8954  4 OnRemoval__23AControllerRemovedStateFv\tAControllerRemovedState.o\r\n
-\x20 UNUSED   000004 ........ ........    OSVReport os.a OSError.o
+\x20 00031b94 00009c 800ec754 000e8954  4 OnRemoval__23AControllerRemovedStateFv\tAControllerRemovedState.o \r\n
+\x20 UNUSED   000004 ........ ........    OSVReport os.a OSError.o \r\n
 "
         .split_terminator("\r\n")
         .collect::<Vec<_>>();
@@ -198,6 +229,7 @@ mod tests {
                     align: 1,
                 },
                 virt_addr: 0x80003100,
+                file_addr: None,
                 id: Identifier::Section {
                     name: SectionName::Init,
                     idx: None,
@@ -215,6 +247,7 @@ mod tests {
                     align: 4,
                 },
                 virt_addr: 0x80003100,
+                file_addr: None,
                 id: Identifier::Named {
                     name: "__start",
                     instance: None,
@@ -234,6 +267,7 @@ mod tests {
                     },
                 },
                 virt_addr: 0x80003350,
+                file_addr: None,
                 id: Identifier::Named {
                     name: "__fill_mem",
                     instance: None,
@@ -251,7 +285,8 @@ mod tests {
                     size: 0x9c,
                     align: 4,
                 },
-                virt_addr: 0x800EC754,
+                virt_addr: 0x800ec754,
+                file_addr: Some(0xe8954),
                 id: Identifier::Named {
                     name: "OnRemoval__23AControllerRemovedStateFv",
                     instance: None,
