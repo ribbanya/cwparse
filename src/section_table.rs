@@ -180,6 +180,8 @@ mod tests {
 \x20 00000000 0001cc 80003100  1 .init\x20\t__start.o \r\n\
 \x20 00000000 0000f0 80003100  4 __start\x20\t__start.o \r\n\
 \x20 00000250 000000 80003350 __fill_mem (entry of memset) \t__mem.o \r\n\
+\x20 00031b94 00009c 800ec754 000e8954  4 OnRemoval__23AControllerRemovedStateFv\tAControllerRemovedState.o\r\n
+\x20 UNUSED   000004 ........ ........    OSVReport os.a OSError.o
 "
         .split_terminator("\r\n")
         .collect::<Vec<_>>();
@@ -238,6 +240,24 @@ mod tests {
                 },
                 origin: Origin {
                     obj: "__mem.o",
+                    src: None,
+                    asm: false,
+                },
+            }),
+            // 00031b94 00009c 800ec754 000e8954  4 OnRemoval__23AControllerRemovedStateFv	AControllerRemovedState.o
+            Line::SectionSymbol(Symbol {
+                addr: 0x31b94,
+                data: Data::Parent {
+                    size: 0x9c,
+                    align: 4,
+                },
+                virt_addr: 0x800EC754,
+                id: Identifier::Named {
+                    name: "OnRemoval__23AControllerRemovedStateFv",
+                    instance: None,
+                },
+                origin: Origin {
+                    obj: "AControllerRemovedState.o",
                     src: None,
                     asm: false,
                 },

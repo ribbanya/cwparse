@@ -370,6 +370,7 @@ mod tests {
     #[test_case("GMBE8P.map" ; "super monkey ball")]
     #[test_case("GPIE01.map" ; "pikmin")]
     #[test_case("GPVE01.map" ; "pikmin2")]
+    #[test_case("NT08.map" ; "nicktoons globs")]
     fn test_file(path: &str) -> Result<()> {
         let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("tests/data")
