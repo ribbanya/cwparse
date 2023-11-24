@@ -13,7 +13,7 @@ use nom::{
 };
 use std::num::ParseIntError;
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub enum Data<S> {
     Main {
         name: SectionName<S>,
@@ -24,7 +24,7 @@ pub enum Data<S> {
     },
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Entry<S> {
     pub data: Data<S>,
     pub size: u32,

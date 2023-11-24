@@ -15,7 +15,7 @@ use nom::{
 };
 use std::num::ParseIntError;
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub enum Line<S: Eq + PartialEq> {
     Empty,
     TreeTitle(S),
@@ -75,7 +75,7 @@ pub enum SectionName<S> {
     Unknown(S),
 }
 
-#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy, Hash)]
 pub enum DebugSectionName {
     Main,
     Line,
@@ -87,7 +87,7 @@ pub enum DebugSectionName {
     Str,
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Origin<S: Eq + PartialEq> {
     pub obj: S,
     pub src: Option<S>,

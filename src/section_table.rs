@@ -14,13 +14,13 @@ use nom::{
 };
 use std::num::ParseIntError;
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub enum Data<S: Eq + PartialEq> {
     Parent { size: u32, align: u8 },
     Child { parent: Identifier<S> },
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Symbol<S: Eq + PartialEq> {
     pub addr: u32,
     pub virt_addr: u32,

@@ -10,7 +10,7 @@ use nom::{
     IResult, Parser,
 };
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Entry<S> {
     pub name: S,
     pub virt_addr: u32,

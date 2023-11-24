@@ -10,7 +10,7 @@ use nom::{
 };
 use std::num::ParseIntError;
 
-#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy, Hash)]
 pub enum Type {
     None,
     Section,
@@ -18,14 +18,14 @@ pub enum Type {
     Function,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy, Hash)]
 pub enum Scope {
     Global,
     Local,
     Weak,
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub enum Data<S: Eq + PartialEq> {
     Linker(S),
     Object(Identifier<S>, Specifier<S>),
@@ -33,13 +33,13 @@ pub enum Data<S: Eq + PartialEq> {
     DuplicateSpecifier(Specifier<S>),
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Node<S: Eq + PartialEq> {
     pub depth: u32,
     pub data: Data<S>,
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Specifier<S: Eq + PartialEq> {
     pub r#type: Type,
     pub scope: Scope,
