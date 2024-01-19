@@ -6,11 +6,11 @@ use nom::{
     bytes::complete::{
         is_a, tag, take, take_while, take_while1, take_while_m_n,
     },
-    character::complete::{alpha1, alphanumeric1, char, digit1},
+    character::complete::{alpha1, alphanumeric1, char, digit1, line_ending},
     combinator::{all_consuming, eof, map, map_res, opt, recognize},
     error::{FromExternalError, ParseError},
     multi::many0_count,
-    sequence::{pair, preceded, separated_pair, tuple},
+    sequence::{pair, preceded, separated_pair, terminated, tuple},
     AsChar, IResult, Parser,
 };
 use std::num::ParseIntError;
@@ -102,25 +102,26 @@ where
 {
     use Line::*;
 
-    let input = input.trim_end_matches("\r\n");
-
-    alt((
-        map(eof, |_| Empty),
-        all_consuming(map(tree::title, TreeTitle)),
-        all_consuming(map(tree::node, TreeNode)),
-        all_consuming(map(section_table::title, SectionTitle)),
-        all_consuming(map(section_table::columns0, |_| SectionColumns0)),
-        all_consuming(map(section_table::columns1, |_| SectionColumns1)),
-        all_consuming(map(section_table::separator, |_| SectionSeparator)),
-        all_consuming(map(section_table::symbol, SectionSymbol)),
-        all_consuming(map(memory_table::title, |_| MemoryTitle)),
-        all_consuming(map(memory_table::columns0, |_| MemoryColumns0)),
-        all_consuming(map(memory_table::columns1, |_| MemoryColumns1)),
-        all_consuming(map(memory_table::entry, MemoryEntry)),
-        all_consuming(map(memory_table::debug_entry, MemoryEntry)),
-        all_consuming(map(linker_table::title, |_| LinkerTitle)),
-        all_consuming(map(linker_table::entry, LinkerEntry)),
-    ))(input)
+    terminated(
+        alt((
+            map(eof, |_| Empty),
+            all_consuming(map(tree::title, TreeTitle)),
+            all_consuming(map(tree::node, TreeNode)),
+            all_consuming(map(section_table::title, SectionTitle)),
+            all_consuming(map(section_table::columns0, |_| SectionColumns0)),
+            all_consuming(map(section_table::columns1, |_| SectionColumns1)),
+            all_consuming(map(section_table::separator, |_| SectionSeparator)),
+            all_consuming(map(section_table::symbol, SectionSymbol)),
+            all_consuming(map(memory_table::title, |_| MemoryTitle)),
+            all_consuming(map(memory_table::columns0, |_| MemoryColumns0)),
+            all_consuming(map(memory_table::columns1, |_| MemoryColumns1)),
+            all_consuming(map(memory_table::entry, MemoryEntry)),
+            all_consuming(map(memory_table::debug_entry, MemoryEntry)),
+            all_consuming(map(linker_table::title, |_| LinkerTitle)),
+            all_consuming(map(linker_table::entry, LinkerEntry)),
+        )),
+        opt(line_ending),
+    )(input)
 }
 
 // TODO: Custom error type
