@@ -36,14 +36,14 @@ pub enum Data<'a> {
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Node<'a> {
     pub depth: u32,
-    pub data: Data<&'a str>,
+    pub data: Data<'a>,
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Specifier<'a> {
     pub r#type: Type,
     pub scope: Scope,
-    pub origin: Origin<&'a str>,
+    pub origin: Origin<'a>,
 }
 
 pub fn title<'a, E>(input: &'a str) -> IResult<&'a str, &'a str, E>
@@ -90,7 +90,7 @@ where
     ))(input)
 }
 
-fn linker_data<'a, E>(input: &'a str) -> IResult<&'a str, Data<&'a str>, E>
+fn linker_data<'a, E>(input: &'a str) -> IResult<&'a str, Data<'a>, E>
 where
     E: ParseError<&'a str>,
 {
@@ -100,7 +100,7 @@ where
     )(input)
 }
 
-fn object_data<'a, E>(input: &'a str) -> IResult<&'a str, Data<&'a str>, E>
+fn object_data<'a, E>(input: &'a str) -> IResult<&'a str, Data<'a>, E>
 where
     E: ParseError<&'a str> + FromExternalError<&'a str, ParseIntError>,
 {
@@ -110,7 +110,7 @@ where
     )(input)
 }
 
-fn duplicate<'a, E>(input: &'a str) -> IResult<&'a str, Data<&'a str>, E>
+fn duplicate<'a, E>(input: &'a str) -> IResult<&'a str, Data<'a>, E>
 where
     E: ParseError<&'a str> + FromExternalError<&'a str, ParseIntError>,
 {
@@ -126,7 +126,7 @@ where
     )(input)
 }
 
-fn specifier<'a, E>(input: &'a str) -> IResult<&'a str, Specifier<&'a str>, E>
+fn specifier<'a, E>(input: &'a str) -> IResult<&'a str, Specifier<'a>, E>
 where
     E: ParseError<&'a str>,
 {

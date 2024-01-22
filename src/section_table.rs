@@ -31,14 +31,14 @@ pub struct Symbol<'a> {
 
 pub fn title<'a, E>(
     input: &'a str,
-) -> IResult<&'a str, SectionName<&'a str>, E>
+) -> IResult<&'a str, SectionName<'a>, E>
 where
     E: ParseError<&'a str>,
 {
     terminated(section_name, tag(" section layout"))(input)
 }
 
-pub fn columns0<'a, E>(input: &'a str) -> IResult<&'a str, Line<&'a str>, E>
+pub fn columns0<'a, E>(input: &'a str) -> IResult<&'a str, Line<'a>, E>
 where
     E: ParseError<&'a str>,
 {
@@ -53,7 +53,7 @@ where
     )(input)
 }
 
-pub fn columns1<'a, E>(input: &'a str) -> IResult<&'a str, Line<&'a str>, E>
+pub fn columns1<'a, E>(input: &'a str) -> IResult<&'a str, Line<'a>, E>
 where
     E: ParseError<&'a str>,
 {
@@ -70,7 +70,7 @@ where
     )(input)
 }
 
-pub fn separator<'a, E>(input: &'a str) -> IResult<&'a str, Line<&'a str>, E>
+pub fn separator<'a, E>(input: &'a str) -> IResult<&'a str, Line<'a>, E>
 where
     E: ParseError<&'a str>,
 {
@@ -79,7 +79,7 @@ where
     })(input)
 }
 
-pub fn symbol<'a, E>(input: &'a str) -> IResult<&'a str, Symbol<&'a str>, E>
+pub fn symbol<'a, E>(input: &'a str) -> IResult<&'a str, Symbol<'a>, E>
 where
     E: ParseError<&'a str>
         + FromExternalError<&'a str, ParseIntError>
@@ -111,7 +111,7 @@ where
 
 fn child<'a, E>(
     input: &'a str,
-) -> IResult<&'a str, (u32, Data<&'a str>, Identifier<&'a str>), E>
+) -> IResult<&'a str, (u32, Data<'a>, Identifier<'a>), E>
 where
     E: ParseError<&'a str> + FromExternalError<&'a str, ParseIntError>,
 {
@@ -128,7 +128,7 @@ where
 
 fn parent_identifier<'a, E>(
     input: &'a str,
-) -> IResult<&'a str, Identifier<&'a str>, E>
+) -> IResult<&'a str, Identifier<'a>, E>
 where
     E: ParseError<&'a str> + FromExternalError<&'a str, ParseIntError>,
 {
@@ -137,7 +137,7 @@ where
 
 fn parent<'a, E>(
     input: &'a str,
-) -> IResult<&'a str, (u32, Data<&'a str>, Identifier<&'a str>), E>
+) -> IResult<&'a str, (u32, Data<'a>, Identifier<'a>), E>
 where
     E: ParseError<&'a str> + FromExternalError<&'a str, ParseIntError>,
     E: ParseError<&'a str> + FromExternalError<&'a str, &'static str>,
@@ -184,7 +184,7 @@ mod tests {
         .split_terminator("\r\n")
         .collect::<Vec<_>>();
 
-        let expected: Vec<Line<&str>> = vec![
+        let expected: Vec<Line> = vec![
             Line::SectionTitle(SectionName::Init),
             Line::SectionColumns0,
             Line::SectionColumns1,

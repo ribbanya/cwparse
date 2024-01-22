@@ -18,7 +18,7 @@ pub struct Entry<'a> {
 
 pub fn title<'a, E: ParseError<&'a str>>(
     input: &'a str,
-) -> IResult<&'a str, Line<&'a str>, E> {
+) -> IResult<&'a str, Line<'a>, E> {
     map(tag("Linker generated symbols:"), |_| Line::LinkerTitle)(input)
 }
 
@@ -56,7 +56,7 @@ Linker generated symbols:\r\n\
         .split_terminator("\r\n")
         .collect::<Vec<_>>();
 
-        let expected: Vec<Line<&str>> = vec![
+        let expected: Vec<Line> = vec![
             Line::LinkerTitle,
             Line::LinkerEntry(Entry {
                 name: "_db_stack_addr",

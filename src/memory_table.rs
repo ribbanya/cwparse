@@ -14,9 +14,9 @@ use nom::{
 use std::num::ParseIntError;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub enum Data<S> {
+pub enum Data<'a> {
     Main {
-        name: SectionName<S>,
+        name: SectionName<'a>,
         virt_addr: u32,
     },
     Debug {
@@ -26,7 +26,7 @@ pub enum Data<S> {
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Entry<'a> {
-    pub data: Data<&'a str>,
+    pub data: Data<'a>,
     pub size: u32,
     pub file_addr: u32,
 }
@@ -38,7 +38,7 @@ where
     recognize(tag("Memory map:"))(input)
 }
 
-pub fn columns0<'a, E>(input: &'a str) -> IResult<&'a str, Line<&'a str>, E>
+pub fn columns0<'a, E>(input: &'a str) -> IResult<&'a str, Line<'a>, E>
 where
     E: ParseError<&'a str>,
 {
@@ -55,7 +55,7 @@ where
     )(input)
 }
 
-pub fn columns1<'a, E>(input: &'a str) -> IResult<&'a str, Line<&'a str>, E>
+pub fn columns1<'a, E>(input: &'a str) -> IResult<&'a str, Line<'a>, E>
 where
     E: ParseError<&'a str>,
 {
@@ -181,7 +181,7 @@ Memory map:\r\n\
         .split_terminator("\r\n")
         .collect::<Vec<_>>();
 
-        let expected: Vec<Line<&str>> = vec![
+        let expected: Vec<Line> = vec![
             Line::MemoryTitle,
             Line::MemoryColumns0,
             Line::MemoryColumns1,

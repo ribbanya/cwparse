@@ -21,9 +21,9 @@ pub struct RawPair<'a, T> {
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub enum Line<S: Eq + PartialEq> {
+pub enum Line<'a> {
     Empty,
-    TreeTitle(S),
+    TreeTitle(&'a str),
     TreeNode(tree::Node<'a>),
     SectionTitle(SectionName<'a>),
     SectionColumns0,
@@ -54,7 +54,7 @@ pub enum Identifier<'a> {
         name: &'a str,
     },
     Section {
-        name: SectionName<&'a str>,
+        name: SectionName<'a>,
         idx: Option<u8>,
     },
     DotL {
@@ -63,7 +63,7 @@ pub enum Identifier<'a> {
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub enum SectionName<S> {
+pub enum SectionName<'a> {
     Bss,
     Ctors,
     Data,
@@ -77,7 +77,7 @@ pub enum SectionName<S> {
     SData,
     SData2,
     Text,
-    Unknown(S),
+    Unknown(&'a str),
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, Copy, Hash)]
@@ -99,9 +99,7 @@ pub struct Origin<'a> {
     pub asm: bool,
 }
 
-pub fn line<'a, E>(
-    input: &'a str,
-) -> IResult<&'a str, RawPair<Line<&'a str>>, E>
+pub fn line<'a, E>(input: &'a str) -> IResult<&'a str, RawPair<Line<'a>>, E>
 where
     E: ParseError<&'a str>
         + FromExternalError<&'a str, ParseIntError>
@@ -195,7 +193,7 @@ where
 
 fn section_symbol<'a, E>(
     input: &'a str,
-) -> IResult<&'a str, (SectionName<&'a str>, u8), E>
+) -> IResult<&'a str, (SectionName<'a>, u8), E>
 where
     E: ParseError<&'a str> + FromExternalError<&'a str, ParseIntError>,
 {
@@ -217,9 +215,7 @@ where
     map_res(preceded(char('$'), digit1), str::parse::<u32>)(input)
 }
 
-pub fn identifier<'a, E>(
-    input: &'a str,
-) -> IResult<&'a str, Identifier<&'a str>, E>
+pub fn identifier<'a, E>(input: &'a str) -> IResult<&'a str, Identifier<'a>, E>
 where
     E: ParseError<&'a str> + FromExternalError<&'a str, ParseIntError>,
 {
@@ -248,7 +244,7 @@ where
 
 pub fn section_name<'a, E>(
     input: &'a str,
-) -> IResult<&'a str, SectionName<&'a str>, E>
+) -> IResult<&'a str, SectionName<'a>, E>
 where
     E: ParseError<&'a str>,
 {
@@ -286,7 +282,7 @@ where
     ))(input)
 }
 
-pub fn origin<'a, E>(input: &'a str) -> IResult<&'a str, Origin<&'a str>, E>
+pub fn origin<'a, E>(input: &'a str) -> IResult<&'a str, Origin<'a>, E>
 where
     E: ParseError<&'a str>,
 {
@@ -306,7 +302,7 @@ where
     )(input)
 }
 
-fn extab<'a, E>(input: &'a str) -> IResult<&'a str, SectionName<&'a str>, E>
+fn extab<'a, E>(input: &'a str) -> IResult<&'a str, SectionName<'a>, E>
 where
     E: ParseError<&'a str>,
 {
@@ -318,7 +314,7 @@ where
 
 fn extabindex<'a, E>(
     input: &'a str,
-) -> IResult<&'a str, SectionName<&'a str>, E>
+) -> IResult<&'a str, SectionName<'a>, E>
 where
     E: ParseError<&'a str>,
 {
@@ -335,7 +331,7 @@ where
 
 fn string_base<'a, E>(
     input: &'a str,
-) -> IResult<&'a str, Identifier<&'a str>, E>
+) -> IResult<&'a str, Identifier<'a>, E>
 where
     E: ParseError<&'a str> + FromExternalError<&'a str, ParseIntError>,
 {
@@ -357,13 +353,13 @@ mod tests {
     use std::{fs::File, path::PathBuf, str};
     use test_case::test_case;
 
-    fn parse_lines<'a>(input: &'a str) -> Result<Vec<RawPair<Line<&'a str>>>> {
+    fn parse_lines<'a>(input: &'a str) -> Result<Vec<RawPair<Line<'a>>>> {
         let vec = input
             .par_lines()
             .map(|line| {
                 super::line::<ErrorTree<&'a str>>(line).map(|(_, line)| line)
             })
-            .collect::<Result<Vec<RawPair<Line<&'a str>>>, _>>()
+            .collect::<Result<Vec<RawPair<Line<'a>>>, _>>()
             .map_err(|err| anyhow!(format!("{err:#?}")))?;
 
         Ok(vec)
