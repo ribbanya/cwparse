@@ -15,26 +15,31 @@ use nom::{
 };
 use std::num::ParseIntError;
 
+pub struct RawPair<'a, T> {
+    pub data: T,
+    pub raw: &'a str,
+}
+
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub enum Line<S: Eq + PartialEq> {
     Empty,
     TreeTitle(S),
-    TreeNode(tree::Node<S>),
-    SectionTitle(SectionName<S>),
+    TreeNode(tree::Node<'a>),
+    SectionTitle(SectionName<'a>),
     SectionColumns0,
     SectionColumns1,
     SectionSeparator,
-    SectionSymbol(section_table::Symbol<S>),
+    SectionSymbol(section_table::Symbol<'a>),
     MemoryTitle,
     MemoryColumns0,
     MemoryColumns1,
-    MemoryEntry(memory_table::Entry<S>),
+    MemoryEntry(memory_table::Entry<'a>),
     LinkerTitle,
-    LinkerEntry(linker_table::Entry<S>),
+    LinkerEntry(linker_table::Entry<'a>),
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub enum Identifier<S: Eq + PartialEq> {
+pub enum Identifier<'a> {
     Relative {
         idx: u32,
     },
@@ -42,18 +47,18 @@ pub enum Identifier<S: Eq + PartialEq> {
         idx: u8,
     },
     Named {
-        name: S,
+        name: &'a str,
         instance: Option<u32>,
     },
     Mangled {
-        name: S,
+        name: &'a str,
     },
     Section {
-        name: SectionName<S>,
+        name: SectionName<&'a str>,
         idx: Option<u8>,
     },
     DotL {
-        name: S,
+        name: &'a str,
     },
 }
 
@@ -88,13 +93,15 @@ pub enum DebugSectionName {
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct Origin<S: Eq + PartialEq> {
-    pub obj: S,
-    pub src: Option<S>,
+pub struct Origin<'a> {
+    pub obj: &'a str,
+    pub src: Option<&'a str>,
     pub asm: bool,
 }
 
-pub fn line<'a, E>(input: &'a str) -> IResult<&'a str, Line<&'a str>, E>
+pub fn line<'a, E>(
+    input: &'a str,
+) -> IResult<&'a str, RawPair<Line<&'a str>>, E>
 where
     E: ParseError<&'a str>
         + FromExternalError<&'a str, ParseIntError>
@@ -102,7 +109,7 @@ where
 {
     use Line::*;
 
-    terminated(
+    let (tail, data) = terminated(
         alt((
             map(eof, |_| Empty),
             all_consuming(map(tree::title, TreeTitle)),
@@ -121,7 +128,8 @@ where
             all_consuming(map(linker_table::entry, LinkerEntry)),
         )),
         opt(line_ending),
-    )(input)
+    )(input)?;
+    Ok((tail, RawPair { data, raw: input }))
 }
 
 // TODO: Custom error type
@@ -341,7 +349,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::Line;
+    use super::{Line, RawPair};
     use anyhow::{anyhow, Context, Result};
     use memmap2::Mmap;
     use nom_supreme::error::ErrorTree;
@@ -349,13 +357,13 @@ mod tests {
     use std::{fs::File, path::PathBuf, str};
     use test_case::test_case;
 
-    fn parse_lines<'a>(input: &'a str) -> Result<Vec<Line<&'a str>>> {
+    fn parse_lines<'a>(input: &'a str) -> Result<Vec<RawPair<Line<&'a str>>>> {
         let vec = input
             .par_lines()
             .map(|line| {
                 super::line::<ErrorTree<&'a str>>(line).map(|(_, line)| line)
             })
-            .collect::<Result<Vec<Line<&'a str>>, _>>()
+            .collect::<Result<Vec<RawPair<Line<&'a str>>>, _>>()
             .map_err(|err| anyhow!(format!("{err:#?}")))?;
 
         Ok(vec)

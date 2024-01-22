@@ -11,8 +11,8 @@ use nom::{
 };
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct Entry<S> {
-    pub name: S,
+pub struct Entry<'a> {
+    pub name: &'a str,
     pub virt_addr: u32,
 }
 
@@ -22,7 +22,7 @@ pub fn title<'a, E: ParseError<&'a str>>(
     map(tag("Linker generated symbols:"), |_| Line::LinkerTitle)(input)
 }
 
-pub fn entry<'a, E>(input: &'a str) -> IResult<&'a str, Entry<&'a str>, E>
+pub fn entry<'a, E>(input: &'a str) -> IResult<&'a str, Entry<'a>, E>
 where
     E: ParseError<&'a str>
         + FromExternalError<&'a str, ParseIntError>

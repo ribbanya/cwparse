@@ -15,18 +15,18 @@ use nom::{
 use std::num::ParseIntError;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub enum Data<S: Eq + PartialEq> {
+pub enum Data<'a> {
     Parent { size: u32, align: u8 },
-    Child { parent: Identifier<S> },
+    Child { parent: Identifier<'a> },
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct Symbol<S: Eq + PartialEq> {
+pub struct Symbol<'a> {
     pub addr: u32,
     pub virt_addr: u32,
-    pub data: Data<S>,
-    pub id: Identifier<S>,
-    pub origin: Origin<S>,
+    pub data: Data<'a>,
+    pub id: Identifier<'a>,
+    pub origin: Origin<'a>,
 }
 
 pub fn title<'a, E>(

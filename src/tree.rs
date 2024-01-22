@@ -26,24 +26,24 @@ pub enum Scope {
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub enum Data<S: Eq + PartialEq> {
-    Linker(S),
-    Object(Identifier<S>, Specifier<S>),
-    DuplicateIdentifier(Identifier<S>),
-    DuplicateSpecifier(Specifier<S>),
+pub enum Data<'a> {
+    Linker(&'a str),
+    Object(Identifier<'a>, Specifier<'a>),
+    DuplicateIdentifier(Identifier<'a>),
+    DuplicateSpecifier(Specifier<'a>),
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct Node<S: Eq + PartialEq> {
+pub struct Node<'a> {
     pub depth: u32,
-    pub data: Data<S>,
+    pub data: Data<&'a str>,
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct Specifier<S: Eq + PartialEq> {
+pub struct Specifier<'a> {
     pub r#type: Type,
     pub scope: Scope,
-    pub origin: Origin<S>,
+    pub origin: Origin<&'a str>,
 }
 
 pub fn title<'a, E>(input: &'a str) -> IResult<&'a str, &'a str, E>
@@ -53,7 +53,7 @@ where
     preceded(tag("Link map of "), c_name)(input)
 }
 
-pub fn node<'a, E>(input: &'a str) -> IResult<&'a str, Node<&'a str>, E>
+pub fn node<'a, E>(input: &'a str) -> IResult<&'a str, Node<'a>, E>
 where
     E: ParseError<&'a str> + FromExternalError<&'a str, ParseIntError>,
 {

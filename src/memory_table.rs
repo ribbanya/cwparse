@@ -25,8 +25,8 @@ pub enum Data<S> {
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct Entry<S> {
-    pub data: Data<S>,
+pub struct Entry<'a> {
+    pub data: Data<&'a str>,
     pub size: u32,
     pub file_addr: u32,
 }
@@ -70,7 +70,7 @@ where
     )(input)
 }
 
-pub fn entry<'a, E>(input: &'a str) -> IResult<&'a str, Entry<&'a str>, E>
+pub fn entry<'a, E>(input: &'a str) -> IResult<&'a str, Entry<'a>, E>
 where
     E: ParseError<&'a str>
         + FromExternalError<&'a str, ParseIntError>
@@ -125,9 +125,7 @@ where
     )(input)
 }
 
-pub fn debug_entry<'a, E>(
-    input: &'a str,
-) -> IResult<&'a str, Entry<&'a str>, E>
+pub fn debug_entry<'a, E>(input: &'a str) -> IResult<&'a str, Entry<'a>, E>
 where
     E: ParseError<&'a str>
         + FromExternalError<&'a str, ParseIntError>
